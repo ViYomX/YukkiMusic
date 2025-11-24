@@ -36,7 +36,7 @@ func (*YoutubifyPlatform) GetTracks(query string) ([]*state.Track, error) {
 }
 
 func (*YoutubifyPlatform) IsDownloadSupported(source state.PlatformName) bool {
-        return source == state.PlatformYouTube
+        return source == PlatformYouTube
 }
 
 func (f *YoutubifyPlatform) Download(_ context.Context, track *state.Track, _ *telegram.NewMessage) (string, error) {
