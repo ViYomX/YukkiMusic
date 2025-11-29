@@ -68,10 +68,7 @@ func langCallbackHandler(cb *telegram.CallbackQuery) error {
 
 	chatID := cb.ChannelID()
 	if isAdmin, err := utils.IsChatAdmin(cb.Client, chatID, cb.SenderID); err != nil || !isAdmin {
-		cb.Answer(
-			"⚠️Only admins can do this actions.",
-			opt,
-		)
+		cb.Answer(F(chatID, "only_admin_or_auth_cb"), opt)
 		return telegram.EndGroup
 	}
 

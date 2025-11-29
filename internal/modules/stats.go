@@ -32,16 +32,18 @@ import (
 
 	"main/config"
 	"main/internal/database"
+	"main/internal/locales"
 )
 
 func statsHandler(m *telegram.NewMessage) error {
 	var sb strings.Builder
 	sb.Grow(512)
+	chatID := m.ChannelID()
 
-	sb.WriteString(getSystemStats())
-	sb.WriteString(getGoMemStats())
-	sb.WriteString(getServerStats())
-	sb.WriteString(getServedStats())
+	sb.WriteString(getSystemStats(chatID))
+	sb.WriteString(getGoMemStats(chatID))
+	sb.WriteString(getServerStats(chatID))
+	sb.WriteString(getServedStats(chatID))
 
 	m.Reply(sb.String())
 	return telegram.EndGroup
@@ -49,19 +51,28 @@ func statsHandler(m *telegram.NewMessage) error {
 
 // ---- Sub Functions ----
 
-func getSystemStats() string {
+func getSystemStats(chatID int64) string {
 	var sb strings.Builder
-	sb.WriteString("🔧 <b>System:</b>\n")
-	fmt.Fprintf(&sb, "• OS: <code>%s</code>, Arch: <code>%s</code>\n", runtime.GOOS, runtime.GOARCH)
-	fmt.Fprintf(&sb, "• CPUs: <code>%d</code>, Goroutines: <code>%d</code>\n\n", runtime.NumCPU(), runtime.NumGoroutine())
+
+	sb.WriteString(F(chatID, "stats_system_header") + "\n")
+	sb.WriteString(F(chatID, "stats_system_os_arch", locales.Arg{
+		"os":   runtime.GOOS,
+		"arch": runtime.GOARCH,
+	}) + "\n")
+	sb.WriteString(F(chatID, "stats_system_cpu_goroutines", locales.Arg{
+		"cpus":       runtime.NumCPU(),
+		"goroutines": runtime.NumGoroutine(),
+	}) + "\n\n")
+
 	return sb.String()
 }
 
-func getGoMemStats() string {
+func getGoMemStats(chatID int64) string {
 	var sb strings.Builder
 	var memStats runtime.MemStats
 
 	runtime.ReadMemStats(&memStats)
+
 	uptime := time.Since(config.StartTime).Minutes()
 	gcPerMin := float64(memStats.NumGC) / uptime
 
@@ -73,15 +84,26 @@ func getGoMemStats() string {
 		gcEmoji = "🟠"
 	}
 
-	sb.WriteString("📦 <b>Internal Memory (Go):</b>\n")
-	fmt.Fprintf(&sb, "• Alloc: <code>%d MB</code>\n", memStats.Alloc/1024/1024)
-	fmt.Fprintf(&sb, "• Sys: <code>%d MB</code>\n", memStats.Sys/1024/1024)
-	fmt.Fprintf(&sb, "• NumGC: <code>%d</code> (%s %.1f/min)\n\n", memStats.NumGC, gcEmoji, gcPerMin)
+	sb.WriteString(F(chatID, "stats_go_mem_header") + "\n")
+
+	sb.WriteString(F(chatID, "stats_go_alloc", locales.Arg{
+		"alloc": memStats.Alloc / 1024 / 1024,
+	}) + "\n")
+	sb.WriteString(F(chatID, "stats_go_sys", locales.Arg{
+		"sys": memStats.Sys / 1024 / 1024,
+	}) + "\n")
+	sb.WriteString(F(chatID, "stats_go_gc", locales.Arg{
+		"gc_count": memStats.NumGC,
+		"emoji":    gcEmoji,
+		"gc_rate":  fmt.Sprintf("%.1f", gcPerMin),
+	}) + "\n\n")
+
 	return sb.String()
 }
 
-func getServerStats() string {
+func getServerStats(chatID int64) string {
 	var sb strings.Builder
+
 	sysMem, _ := mem.VirtualMemory()
 	cpuPercent, _ := cpu.Percent(0, false)
 	diskStat, _ := disk.Usage("/")
@@ -105,37 +127,54 @@ func getServerStats() string {
 		ramEmoji = "🟡"
 	}
 
-	sb.WriteString("💻 <b>Server Stats:</b>\n")
-	fmt.Fprintf(&sb, "• CPU Usage: %s <code>%.2f%%</code>\n", cpuEmoji, cpuPercent[0])
-	fmt.Fprintf(&sb, "• RAM Usage: %s <code>%.2f GiB</code> | <code>%.2f GiB</code>\n",
-		ramEmoji,
-		float64(sysMem.Used)/1073741824,
-		float64(sysMem.Total)/1073741824,
-	)
-	fmt.Fprintf(&sb, "• Storage: <code>%.2f GiB</code> | <code>%.2f GiB</code>\n\n",
-		float64(diskStat.Used)/1073741824,
-		float64(diskStat.Total)/1073741824,
-	)
+	sb.WriteString(F(chatID, "stats_server_header") + "\n")
+
+	sb.WriteString(F(chatID, "stats_server_cpu", locales.Arg{
+		"emoji": cpuEmoji,
+		"cpu":   fmt.Sprintf("%.2f", cpuPercent[0]),
+	}) + "\n")
+
+	sb.WriteString(F(chatID, "stats_server_ram", locales.Arg{
+		"emoji":     ramEmoji,
+		"used_gib":  fmt.Sprintf("%.2f", float64(sysMem.Used)/1073741824),
+		"total_gib": fmt.Sprintf("%.2f", float64(sysMem.Total)/1073741824),
+	}) + "\n")
+
+	sb.WriteString(F(chatID, "stats_server_storage", locales.Arg{
+		"used_gib":  fmt.Sprintf("%.2f", float64(diskStat.Used)/1073741824),
+		"total_gib": fmt.Sprintf("%.2f", float64(diskStat.Total)/1073741824),
+	}) + "\n\n")
+
 	return sb.String()
 }
 
-func getServedStats() string {
+func getServedStats(chatID int64) string {
 	var sb strings.Builder
+
 	servedChats, err1 := database.GetServed()
 	servedUsers, err2 := database.GetServed(true)
 
-	sb.WriteString("📊 <b>Served:</b>\n")
+	sb.WriteString(F(chatID, "stats_served_header") + "\n")
 
 	if err1 != nil {
-		fmt.Fprintf(&sb, "• Chats: <code>Error: %v</code>\n", err1)
+		sb.WriteString(F(chatID, "stats_served_chats_err", locales.Arg{
+			"error": err1.Error(),
+		}) + "\n")
 	} else {
-		fmt.Fprintf(&sb, "• Chats: <code>%d</code>\n", len(servedChats))
+		sb.WriteString(F(chatID, "stats_served_chats", locales.Arg{
+			"count": len(servedChats),
+		}) + "\n")
 	}
 
 	if err2 != nil {
-		fmt.Fprintf(&sb, "• Users: <code>Error: %v</code>\n", err2)
+		sb.WriteString(F(chatID, "stats_served_users_err", locales.Arg{
+			"error": err2.Error(),
+		}) + "\n")
 	} else {
-		fmt.Fprintf(&sb, "• Users: <code>%d</code>\n", len(servedUsers))
+		sb.WriteString(F(chatID, "stats_served_users", locales.Arg{
+			"count": len(servedUsers),
+		}) + "\n")
 	}
+
 	return sb.String()
 }

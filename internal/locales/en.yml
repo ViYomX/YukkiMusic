@@ -5,6 +5,17 @@ invalid_bool: "⚠️ <b>Invalid value.</b>\nUse 'enable' or 'disable'."
 active_chats_info: "📊 <b>Active Chats:</b>\n\nThere are <i>{count}</i> active chats across the bot system."
 active_chats_info_with_issue: "📊 <b>Active Chats:</b>\n\nThere are <i>{count}</i> active chats across the bot system, but <i>{broken}</i> of them may have issues displaying correctly."
 
+
+# 🚫 Assistant Restricted / Banned
+assistant_restricted_warning: |
+  ⚠️ <b>Assistant Restricted</b>
+
+  The assistant {assistant} (ID: <code>{id}</code>) has been <b>banned</b> or restricted in this chat.
+  I cannot play music, manage the queue, or clean up tracks while this continues.
+
+  <i>Unban the assistant to restore all music features 🎵</i>
+
+
 # 🧩 Common auth messages
 auth_no_user: "⚠️ Please provide a user — use:\n{cmd} [user_id] or reply to a user's message."
 user_extract_fail: "⚠️ Unable to get that user: <i>{error}</i>"
@@ -16,6 +27,35 @@ addauth_bot_user: "🤖 You can’t add a bot to the auth list — sudoers must 
 addauth_add_fail: "❌ Failed to add authorized user: {error}"
 addauth_success_with_count: "✅ Added {user}.\nNow {count}/{limit} authorized users."
 addauth_success: "✅ Successfully added {user} to the authorized users list."
+
+# 🤖 Bot Added to Chat
+bot_added_normal: "🎵 Thanks for adding me! Use /play <song> to start playing music."
+
+# 🛠️ Bot Added During Maintenance
+bot_added_maintenance: "⚠️ I'm currently under maintenance and will be back soon. Thanks for your patience! ⏰"
+maint_reason_generic: "<i>📝 Reason: {reason}</i>"
+
+# ⚠️ Bot Demotion
+bot_demotion_goodbye: |
+  <b>⚠️ Permission Lost</b>
+
+  I’ve been <b>demoted from admin</b> and can’t perform my tasks anymore.
+  Without proper rights, I’m unable to function here, so I’ll be <i>leaving the chat now</i>.
+
+  <b>Goodbye 👋</b>
+
+
+# 🎧 CPlay (Channel Play)
+
+cplay_id_not_set: "⚠️ cplay ID not set.\nUse <code>/cplay --set &lt;chat_id&gt;</code> to set it."
+cplay_usage: "<b>Usage:</b> <code>/cplay --set &lt;channel_id&gt;</code>"
+cplay_invalid_chat_id: "<b>Invalid Chat ID:</b> Please provide a valid integer ID for the channel."
+cplay_resolve_peer_fail: "<b>Failed to resolve peer:</b> Could not fetch channel details. Ensure I can access this channel."
+cplay_invalid_target: "<b>Invalid Target:</b> The provided ID is not a valid channel."
+cplay_channel_not_accessible: "<b>Channel Not Accessible:</b> Could not retrieve channel information. Please ensure I am an administrator in the target channel."
+cplay_save_error: "<b>Error:</b> Failed to save CPlay settings."
+cplay_enabled: "✅ <b>Channel Play enabled.</b> All <code>/c</code> commands will now work in channel <code>{channel_id}</code>."
+
 
 # 🗑️ Delete auth
 del_auth_not_authorized: "⚠️ That user isn’t authorized — nothing to remove."
@@ -58,6 +98,62 @@ chat_not_recognized: "⚠️ Chat not recognized."
 clear_no_active: "⚠️ <b>No active playback or queue to clear.</b>"
 clear_success: "✅ The queue has been cleared by {user}."
 
+err_assistant_banned: |
+  <b>🚫 Assistant Restricted</b>
+
+  I can't play music because {user} (UserID: <code>{id}</code>) is <b>banned</b> or <b>removed</b> from this chat.
+
+  <i>✅ Unbanned them already? Use /reload to refresh.</i>
+
+err_admin_permission_required: |
+  ⚠️ <b>Admin Permission Required</b>
+
+  I need <i>admin access</i> to manage and check members in this chat.
+  
+  ➤ <b>Promote me with</b> <code>Manage Chat / Invite Users</code> permission.
+
+err_assistant_join_rate_limited: |
+  ⚠️ Assistant cannot join this chat because it has reached the maximum number of allowed groups.
+
+err_assistant_join_request_sent: |
+  ⚠️ Assistant sent a join request, but I could not auto-approve it.
+
+  <i>✅ Please approve the request manually, then try again.</i>
+
+err_assistant_invite_link_fetch: |
+  ⚠️ Failed to fetch invite link:
+  <i>{error}</i>
+
+err_assistant_invite_failed: |
+  ⚠️ Assistant failed to join this chat:
+  <i>{error}</i>
+
+err_no_active_voicechat: |
+  🎙️ <b>No Active Voice Chat</b>
+
+  I can't join — please start a voice chat first.
+
+  <i>Already started one? Use /reload to refresh.</i>
+
+err_fetch_failed: |
+  ⚠️ Failed to fetch chat info:
+  <i>{error}</i>
+
+err_peer_resolve_failed: |
+  ⚠️ Failed to resolve peer information. Try again later or re-add the assistant.
+
+err_unknown: |
+  ⚠️ Unknown Error Occurred:
+  <i>{error}</i>
+
+err_fetch_tracks: |
+  ⚠️ <b>Failed to fetch track details.</b>
+  Please try again later.
+
+err_download_internal: |
+  ⚠️ <b>Download failed</b> due to an unexpected internal error.
+  Please try again later.
+  
 flood_seconds: "⏳ Slow down! Try again in {duration} seconds."
 flood_minutes: "⏳ Please wait {duration} minutes before using this command again."
 
@@ -75,6 +171,15 @@ lang_same: "ℹ️ You’re already using this language."
 lang_select: "🌐 Select your preferred language:"
 lang_fail: "❌ Failed to update language. Please try again later."
 lang_success: "✅ Language successfully updated to {lang_name}."
+
+logger_playback_started: "Playback Started"
+logger_playback_queued: "Playback Queued"
+
+logger_track: "🎧 Track:"
+logger_source: "🔗 Source:"
+logger_group: "📌 Group:"
+logger_requested_by: "👤 Requested by:"
+logger_timestamp: "⏳ Timestamp:"
 
 loop_usage: "🔁 <b>Loop Control</b>\n\nUsage: {cmd} [count]\n• 0 - Disable loop\n• 1-10 - Loop count\n\n<i>{count_line}</i>"
 loop_invalid: "⚠️ <b>Invalid loop count.</b>\nUse 0 to disable or 1-10 to set loop count."
@@ -133,6 +238,11 @@ mute_success_with_time: |
   👤 Muted by: {user}
   <i>⏳ Auto-unmute in <b>{duration}</b> seconds</i>
 
+no_song_query: |
+  🎵 <b>Whoops! No song detected.</b>
+  Type <b>{cmd}</b> <i>song name</i> or reply to a <i>media</i> to start playing!
+
+no_song_found: "❌ No tracks found."
 only_admin: "⚠️ <b>Permission Denied!</b>\nOnly <b>admins</b> can control this actions. You can still play songs 🎵.\n\nIf you believe you are an admin, please use /reload to refresh your admin status."
 only_admin_or_auth: "⚠️ <b>Access Denied</b>\nOnly <b>admins</b> or <b>authorized users</b> can control this actions.\n\nIf you recently became an admin, use /reload to refresh your permissions."
 only_admin_or_auth_cb: "⚠️ Only admins can do this actions."
@@ -156,7 +266,33 @@ pause_success: |
   👤 Paused by: {user}
   {auto_resume_line}
 
-speed_line: "⚙️ Speed: <b>{speed}x</b>"
+play_single_track_too_long: |
+  ⚠️ You can't play songs longer than {limit_mins} minutes.
+  <i>{title}</i> was skipped.
+
+play_download_failed: |
+  ❌ Failed to download "<i>{title}</i>".
+  Error: <code>{error}</code>
+
+play_added_to_queue_single: |
+  <b>🎵 Added to Queue:</b>
+
+  <b>▫ Track:</b> <a href="{url}">{title}</a>
+  <b>▫ Duration:</b> {duration}
+  <b>▫ Requested by:</b> {by}
+
+channel_play_depreceated: "⚠️ This handler is deprecated. Use <code><a>/cplay --set channel_id </code></a> to set your channel for playback."
+play_multiple_tracks_too_long_header: "<b>⚠️ {count} tracks were skipped (max duration {limit_mins} mins):</b>"
+play_multiple_tracks_too_long_item: "— <i>{title}</i>"
+play_multiple_tracks_too_long_more: "... and {remaining} more."
+play_all_tracks_skipped: "❌ All found tracks were skipped due to duration limits."
+play_rtmp_not_supported: "⚠️ RTMP stream not supported right now."
+play_failed: "❌ Failed to play\nError: {error}"
+play_downloading_song: "📥 Downloading song \"{title}\""
+play_download_canceled: "⚠️ Download canceled by {user}."
+play_added_multiple_header: "➕ <b>Added {count} tracks</b> by {user}"
+play_queue_limit_hint: "⚠️ <i>Queue limit reached — some tracks were skipped.</i>"
+play_queue_view_hint: "<i>Use /queue to view full list.</i>"
 
 # 🏓 Ping messages
 ping_start: "🏓 Pinging..."
@@ -175,6 +311,7 @@ position_now: |
   📍 <code>{position} / {duration}</code>
   ⚙️ Speed: <b>{speed}x</b>
 
+queue_limit_reached: "⚠️ Queue limit reached ({limit} tracks max). Use /clear to clear queue."
 queue_no_active: "⚠️ <b>No active playback.</b>\nNothing is queued right now."
 queue_header: "🎶 <b>Current Queue</b>"
 queue_now_playing: "▶️ <b>Now Playing:</b>"
@@ -182,6 +319,31 @@ queue_up_next: "⏭️ <b>Up Next:</b>"
 queue_more_line: "\n… and {remaining} more"
 queue_empty_tail: "📭 <i>No more songs in queue.</i>"
 queue_empty: "⚠️ <b>The queue is already empty.</b>"
+
+# 🔄 Reload
+reload_start: "⚙️ Reloading admin cache, voice chat status, and assistant status..."
+
+reload_done: "<b>⚙️ Reload complete:</b>\n\n{summary}"
+
+reload_admin_cache_ok: "<b>• Admin cache:</b> <i>✅ Done</i>"
+reload_admin_cache_fail: "<b>• Admin cache:</b> <i>❌ ({error})</i>"
+
+reload_voice_inactive: "<b>• Voice chat:</b> <i>⚪ Inactive</i>"
+reload_voice_admin_required: "<b>• Voice chat:</b> <i>❌ Admin permission required</i>"
+reload_voice_fail: "<b>• Voice chat:</b> <i>❌ ({error})</i>"
+reload_voice_active: "<b>• Voice chat:</b> <i>✅ Active</i>"
+
+reload_assistant_banned: "<b>• Assistant:</b> <i>❌ Banned</i>"
+reload_assistant_admin_required: "<b>• Assistant:</b> <i>❌ Admin permission required</i>"
+reload_assistant_join_rejected: "<b>• Assistant:</b> <i>❌ Invite rejected or invalid</i>"
+reload_assistant_rate_limited: "<b>• Assistant:</b> <i>❌ Rate limited</i>"
+reload_assistant_join_request_sent: "<b>• Assistant:</b> <i>⚪ Join request sent</i>"
+reload_assistant_fail: "<b>• Assistant:</b> <i>❌ ({error})</i>"
+reload_assistant_present: "<b>• Assistant:</b> <i>✅ Present</i>"
+reload_assistant_not_present: "<b>• Assistant:</b> <i>⚪ Not present</i>"
+
+reload_room_reset: "<b>• Room:</b> <i>Reset ✅</i>"
+
 
 remove_usage: "⚠️ <b>Invalid usage.</b>\nUsage: <code>{cmd} [index]</code>"
 remove_invalid_index: "⚠️ <b>Invalid index.</b> It must be a <b>number</b>."
@@ -224,6 +386,60 @@ room_not_linked: "⚠️ This channel isn't linked to any group."
 room_already_paused: "⏸️ Track is already paused. Tap ▶️ Resume to continue."
 room_already_paused_auto: "⏸️ Track is already paused — auto-resuming in {duration}."
 room_pause_failed: "❌ Failed to pause playback.\n\n<i>{error}</i>"
+
+
+searching: "🔍🎶 Searching... ⚡✨"
+searching_query: "🔍🎶 Searching for: <b>{query}</b>... ⚡✨"
+
+speed_line: "⚙️ Speed: <b>{speed}x</b>"
+
+stats_system_header: "🔧 <b>System:</b>"
+stats_go_mem_header: "📦 <b>Internal Memory (Go):</b>"
+stats_server_header: "💻 <b>Server Stats:</b>"
+stats_served_header: "📊 <b>Served:</b>"
+
+stats_system_os_arch: "• OS: <code>{os}</code>, Arch: <code>{arch}</code>"
+stats_system_cpu_goroutines: "• CPUs: <code>{cpus}</code>, Goroutines: <code>{goroutines}</code>"
+
+stats_go_alloc: "• Alloc: <code>{alloc} MB</code>"
+stats_go_sys: "• Sys: <code>{sys} MB</code>"
+stats_go_gc: "• NumGC: <code>{gc_count}</code> ({emoji} {gc_rate}/min)"
+
+stats_server_cpu: "• CPU Usage: {emoji} <code>{cpu}%</code>"
+stats_server_ram: "• RAM Usage: {emoji} <code>{used_gib} GiB</code> | <code>{total_gib} GiB</code>"
+stats_server_storage: "• Storage: <code>{used_gib} GiB</code> | <code>{total_gib} GiB</code>"
+
+stats_served_chats: "• Chats: <code>{count}</code>"
+stats_served_chats_err: "• Chats: <code>Error: {error}</code>"
+
+stats_served_users: "• Users: <code>{count}</code>"
+stats_served_users_err: "• Users: <code>Error: {error}</code>"
+
+# 👑 Sudo users
+
+sudo_owner_self: "😂 Haha, you’re the boss already! Why are you even trying to add yourself?"
+sudo_bot_self: "🤖 Haha, I’m the bot! I can’t add myself to the sudo list — even the owner can’t cheat me 😎"
+sudo_bot_user: "🤖 You can’t add a bot to the sudo list — sudoers must be human!"
+
+sudo_fetch_user_fail: "❌ Failed to fetch user info. Maybe the user is inaccessible.\n<i>{error}</i>"
+sudo_check_fail: "❌ Failed to check sudo existence: <i>{error}</i>"
+sudo_already: "⚠️ User {user} (ID:<code>{id}</code>) is already a sudoer."
+sudo_add_fail: "❌ Failed to add sudo: <i>{error}</i>"
+sudo_add_success: "✅ Added {user} (<code>{id}</code>) to sudoers."
+sudo_assistant_self: "🤖 The assistant is always in the sudo list by default — it cannot be added again."
+
+sudo_owner_remove_block: "😎 Nice try! You can’t remove the owner — they’re untouchable."
+sudo_assistant_cannot_remove: "🤖 The assistant is required and cannot be removed from the sudo list."
+sudo_not_exists: "⚠️ User {user} (<code>{id}</code>) is not a sudoer."
+sudo_remove_fail: "❌ Failed to remove sudo: <i>{error}</i>"
+sudo_remove_success: "🗑️ Removed {user} (ID: <code>{id}</code>) from sudoers."
+
+sudo_list_fetching: "⏳ Fetching sudoers list..."
+sudo_list_fetch_fail: "❌ Failed to get sudoers: <code>{error}</code>"
+sudo_list_header: "👑 <b>Current Sudoers:</b>"
+sudo_list_owner: "{index}. {user} — <b>Owner</b>"
+sudo_list_entry: "{index}. {user}"
+sudo_list_no_extra: "⚠️ No additional sudoers found."
 
 seek_no_active: "⚠️ <b>No track is currently playing.</b>"
 seek_usage: "⚠️ Please provide seconds.\nExample: <code>{cmd} 40</code>"
@@ -323,6 +539,10 @@ stream_now_playing: |
   <b>▫ Duration:</b> {duration}
   <b>▫ Requested by:</b> {by}
 
+# 👑 Sudo / Owner Join Messages
+sudo_join_owner: "👑 {user} — owner of {bot} — just entered the chat."
+sudo_join_sudo: "🛡️ {user}, a sudo user of {bot}, just joined the chat."
+
 supergroup_needed: |
   This chat (ID: <code>{chat_id}</code>) is not a supergroup yet.
   <b>⚠️ Please convert this chat to a supergroup then add me as admin.</b>
@@ -342,6 +562,9 @@ unmute_success: |
   {speed_line}
 
 
+# 🔊 Voice Chat Events
+voicechat_ended: "📴 Voice chat ended!\nAll queues cleared."
+voicechat_started: "📢 Voice chat started!\nUse /play <song> to play music."
 # Commands help
 
 help_owner: |

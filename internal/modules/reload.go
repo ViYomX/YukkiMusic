@@ -26,6 +26,7 @@ import (
 	"github.com/amarnathcjd/gogram/telegram"
 
 	"main/internal/core"
+	"main/internal/locales"
 	"main/internal/utils"
 )
 
@@ -43,30 +44,40 @@ func handleReload(m *telegram.NewMessage, cplay bool) error {
 		m.Reply(err.Error())
 		return telegram.EndGroup
 	}
+
 	chatID := r.ChatID
 	userID := m.SenderID()
 	floodKey := fmt.Sprintf("reload:%d%d", chatID, userID)
-	floodDuration := 10 * time.Minute
+	floodDuration := 5 * time.Minute
+
 	if remaining := utils.GetFlood(floodKey); remaining > 0 {
-		return m.E(m.Reply(fmt.Sprintf(
-			"⏳ Please wait %s minutes before using this command again.",
-			formatDuration(int(remaining.Seconds())),
+		return m.E(m.Reply(F(
+			chatID,
+			"flood_minutes",
+			locales.Arg{
+				"duration": formatDuration(int(remaining.Seconds())),
+			},
 		)))
 	}
 
-	mystic, err := m.Reply("⚙️ Reloading admin cache, voice chat status, and assistant status...\n")
+	mystic, err := m.Reply(F(chatID, "reload_start"))
 	if err != nil {
 		return err
 	}
 
 	summary := ""
+
+	// --- Admin cache ---
 	admins, adminErr := utils.ReloadChatAdmin(m.Client, chatID)
 	if adminErr != nil {
-		summary += fmt.Sprintf("<b>• Admin cache:</b> <i>❌ (%v)</i>\n", adminErr)
+		summary += F(chatID, "reload_admin_cache_fail", locales.Arg{
+			"error": adminErr.Error(),
+		}) + "\n"
 	} else {
-		summary += "<b>• Admin cache:</b> <i>✅ Done</i>\n"
+		summary += F(chatID, "reload_admin_cache_ok") + "\n"
 	}
 
+	// Check if current user is admin
 	isAdmin := false
 	if adminErr == nil {
 		for _, id := range admins {
@@ -78,55 +89,65 @@ func handleReload(m *telegram.NewMessage, cplay bool) error {
 	}
 
 	if isAdmin {
-		floodDuration = 5 * time.Minute
+		// shorter flood for admins
+		floodDuration = 2 * time.Minute
 	}
 	utils.SetFlood(floodKey, floodDuration)
 
+	// --- Voice chat status ---
 	voiceActive, voiceErr := core.GetVoiceChatStatus(chatID, true)
 	if voiceErr != nil {
 		switch {
 		case errors.Is(voiceErr, core.ErrNoActiveVoiceChat):
-			summary += "<b>• Voice chat:</b> <i>⚪ Inactive</i>\n"
+			summary += F(chatID, "reload_voice_inactive") + "\n"
 		case errors.Is(voiceErr, core.ErrAdminPermissionRequired):
-			summary += "<b>• Voice chat:</b> <i>❌ Admin permission required</i>\n"
+			summary += F(chatID, "reload_voice_admin_required") + "\n"
 		default:
-			summary += fmt.Sprintf("<b>• Voice chat:</b> <i>❌ (%v)</i>\n", voiceErr)
+			summary += F(chatID, "reload_voice_fail", locales.Arg{
+				"error": voiceErr.Error(),
+			}) + "\n"
 		}
 	} else if voiceActive {
-		summary += "<b>• Voice chat:</b> <i>✅ Active</i>\n"
+		summary += F(chatID, "reload_voice_active") + "\n"
 	}
 
+	// --- Assistant status ---
 	assistantActive, assistantErr := core.GetAssistantStatus(chatID, true)
 	if assistantErr != nil {
 		switch {
 		case errors.Is(assistantErr, core.ErrAssistantBanned):
-			summary += "<b>• Assistant:</b> <i>❌ Banned</i>\n"
+			summary += F(chatID, "reload_assistant_banned") + "\n"
 		case errors.Is(assistantErr, core.ErrAdminPermissionRequired):
-			summary += "<b>• Assistant:</b> <i>❌ Admin permission required</i>\n"
+			summary += F(chatID, "reload_assistant_admin_required") + "\n"
 		case errors.Is(assistantErr, core.ErrAssistantJoinRejected):
-			summary += "<b>• Assistant:</b> <i>❌ Invite rejected or invalid</i>\n"
+			summary += F(chatID, "reload_assistant_join_rejected") + "\n"
 		case errors.Is(assistantErr, core.ErrAssistantJoinRateLimited):
-			summary += "<b>• Assistant:</b> <i>❌ Rate limited</i>\n"
+			summary += F(chatID, "reload_assistant_rate_limited") + "\n"
 		case errors.Is(assistantErr, core.ErrAssistantJoinRequestSent):
-			summary += "<b>• Assistant:</b> <i>⚪ Join request sent</i>\n"
+			summary += F(chatID, "reload_assistant_join_request_sent") + "\n"
 		default:
-			summary += fmt.Sprintf("<b>• Assistant:</b> <i>❌ (%v)</i>\n", assistantErr)
+			summary += F(chatID, "reload_assistant_fail", locales.Arg{
+				"error": assistantErr.Error(),
+			}) + "\n"
 		}
 	} else if assistantActive {
-		summary += "<b>• Assistant:</b> <i>✅ Present</i>\n"
+		summary += F(chatID, "reload_assistant_present") + "\n"
 	} else {
-		summary += "<b>• Assistant:</b> <i>⚪ Not present</i>\n"
+		summary += F(chatID, "reload_assistant_not_present") + "\n"
 	}
 
 	// --- Destroy room if user is admin ---
 	if isAdmin {
 		if room, ok := core.GetRoom(chatID); ok {
 			room.Destroy()
-			summary += "<b>• Room:</b> <i>Reset ✅</i>\n"
+			summary += F(chatID, "reload_room_reset") + "\n"
 		}
 	}
 
-	utils.EOR(mystic, "<b>⚙️ Reload complete:</b></u>\n\n"+summary)
+	// Header + summary
+	utils.EOR(mystic, F(chatID, "reload_done", locales.Arg{
+		"summary": summary,
+	}))
 
 	return nil
 }
